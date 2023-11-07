@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "93936072854",
+    "project_id": "bulu-flutter-chat-7fb7e",
+    "storage_bucket": "bulu-flutter-chat-7fb7e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93936072854:android:14f9796b3013d450aaaab7",
+        "android_client_info": {
+          "package_name": "com.example.flutter_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANYIOXsidPpP7YsrvK6gvffVKGtVCcjhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
