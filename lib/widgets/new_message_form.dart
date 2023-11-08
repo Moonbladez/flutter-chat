@@ -28,6 +28,9 @@ class _NewMessageFormState extends State<NewMessageForm> {
       return;
     }
 
+    //removes keyboard
+    FocusScope.of(context).unfocus();
+
     final user = FirebaseAuth.instance.currentUser;
     final userData = await FirebaseFirestore.instance
         .collection('users')
