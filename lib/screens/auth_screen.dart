@@ -1,5 +1,6 @@
-import 'dart:developer' as developer;
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/widgets/user_image_picker.dart';
 
@@ -14,6 +15,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLogin = true;
   String _error = "";
+  File? _userImageFile;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -39,7 +41,7 @@ class _AuthScreenState extends State<AuthScreen> {
   void _validateAndSubmit(BuildContext context) async {
     final isValid = _formKey.currentState!.validate();
 
-    if (!isValid) {
+    if (!isValid || (_isLogin && _userImageFile == null)) {
       return;
     }
 
@@ -56,6 +58,16 @@ class _AuthScreenState extends State<AuthScreen> {
           email: _emailController.text,
           password: _passwordController.text,
         );
+
+        final user = FirebaseAuth.instance.currentUser;
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child("user_images")
+            .child("${user!.uid}.jpg");
+
+        await storageRef.putFile(_userImageFile!);
+        final imageUrl = await storageRef.getDownloadURL();
+        print(imageUrl);
       }
     } on FirebaseAuthException catch (e) {
       _showError(
@@ -96,7 +108,12 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (!_isLogin) UserImagePicker(),
+                          if (!_isLogin)
+                            UserImagePicker(
+                              onImageSelect: (File selectedImage) {
+                                _userImageFile = selectedImage;
+                              },
+                            ),
                           TextFormField(
                             autocorrect: false,
                             controller: _emailController,
