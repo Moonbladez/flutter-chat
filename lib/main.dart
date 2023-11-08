@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_chat/screens/screens.dart';
 import 'firebase_options.dart';
-
-import 'package:flutter_chat/screens/auth_screen.dart';
 import 'package:flutter_chat/theme.dart';
 
 Future main() async {
@@ -17,16 +17,34 @@ Future main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: lightTheme,
       darkTheme: darkTheme,
-      home: const AuthScreen(),
-      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return const ChatScreen();
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SplashScreen();
+          }
+          if (snapshot.hasError) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Something went wrong'),
+              ),
+            );
+          }
+
+          return const AuthScreen();
+        },
+      ),
+      theme: lightTheme,
+      themeMode: ThemeMode.light,
+      title: 'Flutter Demo',
     );
   }
 }
