@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/widgets/user_image_picker.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -95,6 +96,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (!_isLogin) UserImagePicker(),
                           TextFormField(
                             autocorrect: false,
                             controller: _emailController,
