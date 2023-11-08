@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
       darkTheme: darkTheme,
       home: const AuthScreen(),
       themeMode: ThemeMode.light,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -11,13 +11,11 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   bool _isLogin = true;
   String _error = "";
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  //dispose
   @override
   void dispose() {
     _emailController.dispose();
@@ -25,44 +23,44 @@ class _AuthScreenState extends State<AuthScreen> {
     super.dispose();
   }
 
-  _handleSubmit(BuildContext context) async {
+  void _showError(String message) {
+    setState(() {
+      _error = message;
+    });
+  }
+
+  void _clearError() {
+    setState(() {
+      _error = "";
+    });
+  }
+
+  void _validateAndSubmit(BuildContext context) async {
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
       return;
     }
 
-    if (_isLogin) {
-      // Login
-    } else {
-      try {
-        final credential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    _clearError();
+
+    try {
+      if (_isLogin) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text,
           password: _passwordController.text,
         );
-
-        setState(() {
-          _error = "";
-        });
-        print(credential);
-      } on FirebaseAuthException catch (error) {
-        String message = "An error occurred, please check your credentials!";
-
-        if (error.message != null) {
-          message = error.message!;
-        }
-
-        setState(() {
-          _error = message;
-        });
-      } catch (error) {
-        developer.log(
-          "Error",
-          name: 'auth_screen.dart',
-          error: error,
+      } else {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
         );
       }
+    } on FirebaseAuthException catch (e) {
+      _showError(
+          e.message ?? "An error occurred, please check your credentials!");
+    } catch (error) {
+      _showError("An error occurred");
     }
   }
 
@@ -146,7 +144,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  _handleSubmit(context);
+                                  _validateAndSubmit(context);
                                 },
                                 child: Text(
                                   _isLogin ? "Login" : "Signup",
