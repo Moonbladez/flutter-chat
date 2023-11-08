@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class NewMessageForm extends StatefulWidget {
@@ -18,14 +21,26 @@ class _NewMessageFormState extends State<NewMessageForm> {
     super.dispose();
   }
 
-  void _validateAndSubmit() {
+  void _validateAndSubmit() async {
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
       return;
     }
 
-    print(_messageController.text);
+    final user = FirebaseAuth.instance.currentUser;
+    final userData = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
+
+    FirebaseFirestore.instance.collection('chat').add({
+      "created_at": Timestamp.now(),
+      'message': _messageController.text,
+      'user_id': user.uid,
+      'username': userData.data()!["username"],
+      'user_image': userData.data()!["image_url"],
+    });
 
     _messageController.clear();
   }

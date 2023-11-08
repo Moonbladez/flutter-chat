@@ -5,8 +5,8 @@ class ChatMessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: const Text('No Message found'),
+    return const Center(
+      child: Text('No Message found'),
     );
   }
 }
