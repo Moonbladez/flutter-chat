@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLogin = true;
+  bool _isLoading = false;
+
   String _error = "";
   File? _userImageFile;
   final TextEditingController _emailController = TextEditingController();
@@ -28,12 +31,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _showError(String message) {
     setState(() {
+      _isLoading = false;
       _error = message;
     });
   }
 
   void _clearError() {
     setState(() {
+      _isLoading = false;
       _error = "";
     });
   }
@@ -41,13 +46,21 @@ class _AuthScreenState extends State<AuthScreen> {
   void _validateAndSubmit(BuildContext context) async {
     final isValid = _formKey.currentState!.validate();
 
-    if (!isValid || (_isLogin && _userImageFile == null)) {
+    if (!_isLogin && _userImageFile == null) {
+      _showError("Please select a user image.");
+      return;
+    }
+
+    if (!isValid) {
       return;
     }
 
     _clearError();
 
     try {
+      setState(() {
+        _isLoading = true;
+      });
       if (_isLogin) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text,
@@ -67,7 +80,12 @@ class _AuthScreenState extends State<AuthScreen> {
 
         await storageRef.putFile(_userImageFile!);
         final imageUrl = await storageRef.getDownloadURL();
-        print(imageUrl);
+
+        await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+          "username": _emailController.text,
+          "email": _emailController.text,
+          "image_url": imageUrl,
+        });
       }
     } on FirebaseAuthException catch (e) {
       _showError(
@@ -149,26 +167,32 @@ class _AuthScreenState extends State<AuthScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _isLogin = !_isLogin;
-                                  });
-                                },
-                                child: Text(
-                                  _isLogin
-                                      ? "Create an account"
-                                      : "I already have an account",
+                              if (_isLoading)
+                                const Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _validateAndSubmit(context);
-                                },
-                                child: Text(
-                                  _isLogin ? "Login" : "Signup",
+                              if (!_isLoading)
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isLogin = !_isLogin;
+                                    });
+                                  },
+                                  child: Text(
+                                    _isLogin
+                                        ? "Create an account"
+                                        : "I already have an account",
+                                  ),
                                 ),
-                              ),
+                              if (!_isLoading)
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _validateAndSubmit(context);
+                                  },
+                                  child: Text(
+                                    _isLogin ? "Login" : "Signup",
+                                  ),
+                                ),
                             ],
                           ),
                           if (_error.isNotEmpty)
