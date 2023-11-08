@@ -40,17 +40,18 @@ class ChatMessageList extends StatelessWidget {
           itemCount: loadedMessages.length,
           itemBuilder: (context, index) {
             try {
-              final message = loadedMessages[index]["message"] as String;
-              final nextMessage = index + 1 < loadedMessages.length
-                  ? loadedMessages[index + 1]["message"] as String
+              final String message = loadedMessages[index]["message"];
+              final String? nextMessage = index + 1 < loadedMessages.length
+                  ? loadedMessages[index + 1]["message"]
                   : null;
 
-              final currentMessageUserId =
-                  loadedMessages[index]["user_id"] as String;
-              final nextMessageUserId = nextMessage != null
-                  ? loadedMessages[index + 1]["user_id"] as String
+              final String currentMessageUserId =
+                  loadedMessages[index]["user_id"];
+              final String? nextMessageUserId = nextMessage != null
+                  ? loadedMessages[index + 1]["user_id"]
                   : null;
-              final nextUserIsSame = currentMessageUserId == nextMessageUserId;
+              final bool nextUserIsSame =
+                  currentMessageUserId == nextMessageUserId;
 
               if (nextUserIsSame) {
                 return ChatMessageListItem.next(
@@ -70,7 +71,7 @@ class ChatMessageList extends StatelessWidget {
                 "Error processing message at index $index: $error",
                 name: "ChatMessageList",
               );
-              return const SizedBox(); // or any placeholder widget
+              return const SizedBox();
             }
           },
           padding: const EdgeInsets.only(
