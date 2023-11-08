@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class NewMessageForm extends StatefulWidget {
@@ -11,8 +10,8 @@ class NewMessageForm extends StatefulWidget {
 }
 
 class _NewMessageFormState extends State<NewMessageForm> {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController _messageController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _messageController = TextEditingController();
 
   //dispose
   @override
